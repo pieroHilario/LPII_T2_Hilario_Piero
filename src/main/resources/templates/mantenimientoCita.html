@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento de Citas - Clínica VIDA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2193b0;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .clinic-name {
+            color: #2193b0;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2193b0;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .info-box strong {
+            color: #2193b0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        label .required {
+            color: #e74c3c;
+        }
+        
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2193b0;
+        }
+        
+        input[readonly] {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        select {
+            cursor: pointer;
+            background-color: white;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 147, 176, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            line-height: 46px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> MANTENIMIENTO DE CITAS</h1>
+            <p class="subtitle">
+                <span th:if="${cita.idCita != null}">Editando Cita N° </span>
+                <span th:if="${cita.idCita == null}">Nueva Cita</span>
+                <strong th:if="${cita.idCita != null}" th:text="${cita.idCita}"></strong>
+            </p>
+            <p class="clinic-name">Clínica VIDA</p>
+        </div>
+        
+        
+        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        
+        <div th:if="${cita.idCita != null}" class="info-box">
+            <p><strong> Fecha Actual:</strong> <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}"></span></p>
+            <p><strong> Paciente:</strong> <span th:text="${cita.paciente.nombres}"></span></p>
+            <p><strong> Médico:</strong> <span th:text="${cita.medico.nombres}"></span></p>
+        </div>
+        
+      
+        <form action="/actualizar" method="post">
+            <!-- Campo oculto para ID (si es edición) -->
+            <input type="hidden" name="idCita" th:value="${cita.idCita}">
+            
+           
+            <div class="form-group">
+                <label for="idPaciente">
+                    Paciente: <span class="required">*</span>
+                </label>
+                <select id="idPaciente" name="idPaciente" required>
+                    <option value="">-- Seleccione un paciente --</option>
+                    <option th:each="paciente : ${pacientes}" 
+                            th:value="${paciente.idPaciente}"
+                            th:text="${paciente.nombres + ' (DNI: ' + paciente.dni + ')'}"
+                            th:selected="${cita.paciente != null and paciente.idPaciente == cita.paciente.idPaciente}">
+                        Paciente
+                    </option>
+                </select>
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="idMedico">
+                    Médico: <span class="required">*</span>
+                </label>
+                <select id="idMedico" name="idMedico" required>
+                    <option value="">-- Seleccione un médico --</option>
+                    <option th:each="medico : ${medicos}" 
+                            th:value="${medico.idMedico}"
+                            th:text="${medico.nombres + ' - ' + medico.especialidad}"
+                            th:selected="${cita.medico != null and medico.idMedico == cita.medico.idMedico}">
+                        Médico
+                    </option>
+                </select>
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="fecha">
+                    Fecha de la Cita: <span class="required">*</span>
+                </label>
+                <input type="date" 
+                       id="fecha" 
+                       name="fecha" 
+                       th:value="${cita.fecha}"
+                       required>
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="costo">
+                    Costo (S/): <span class="required">*</span>
+                </label>
+                <input type="number" 
+                       id="costo" 
+                       name="costo" 
+                       step="0.01" 
+                       min="0"
+                       th:value="${cita.costo}"
+                       placeholder="0.00"
+                       required>
+            </div>
+            
+            
+            <div class="btn-container">
+                <button type="submit" class="btn btn-primary">
+                     Actualizar
+                </button>
+                <a href="/consulta" class="btn btn-secondary">
+                     Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

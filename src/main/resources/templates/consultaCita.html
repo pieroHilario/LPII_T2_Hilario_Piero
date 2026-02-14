@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Clínica VIDA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg,#2193b0 0%, #6dd5ed 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2193b0;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .clinic-name {
+            color: #2193b0;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .btn-container {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 147, 176, 0.4);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tbody tr {
+            transition: background 0.3s;
+        }
+        
+        tbody tr:hover {
+            background: #f0f9ff;
+        }
+        
+        .btn-edit {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 13px;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-edit:hover {
+            background: #218838;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-style: italic;
+            font-size: 16px;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> CONSULTA DE CITAS MÉDICAS</h1>
+            <p class="subtitle">Sistema de Gestión</p>
+            <p class="clinic-name">Clínica VIDA</p>
+        </div>
+        
+        
+        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        
+        <div class="btn-container">
+            <a href="/mantenimiento" class="btn">
+                 Nueva Cita
+            </a>
+        </div>
+        
+ 
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Cita</th>
+                    <th>Fecha</th>
+                    <th>Paciente</th>
+                    <th>Médico</th>
+                    <th>Especialidad</th>
+                    <th>Costo (S/)</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${citas == null or citas.isEmpty()}">
+                    <td colspan="7" class="no-data">
+                         No hay citas registradas
+                    </td>
+                </tr>
+                
+                <tr th:each="cita : ${citas}">
+                    <td th:text="${cita.idCita}">1</td>
+                    <td th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}">15/02/2026</td>
+                    <td th:text="${cita.paciente.nombres}">Paciente</td>
+                    <td th:text="${cita.medico.nombres}">Médico</td>
+                    <td th:text="${cita.medico.especialidad}">Especialidad</td>
+                    <td>
+                        <strong th:text="'S/ ' + ${#numbers.formatDecimal(cita.costo, 1, 2)}">S/ 0.00</strong>
+                    </td>
+                    <td>
+                        <a th:href="@{/mantenimiento(idCita=${cita.idCita})}" class="btn-edit">
+                            Editar
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
